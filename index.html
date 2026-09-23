@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedido de Almuerzo — YAMBOLY</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --azul: #502278;
+    --azul-claro: #B6CFD0;
+    --azul-suave: #DDE5ED;
+    --verde-suave: #EBF0E3;
+    --blanco: #ffffff;
+    --gris: #f4f6f9;
+    --texto: #1a2535;
+    --error: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--azul-suave);
+    min-height: 100vh;
+    padding: 16px 16px 60px;
+    color: var(--texto);
+  }
+
+  .container { max-width: 640px; margin: 0 auto; }
+
+  .cabecera {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .fecha-bar {
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .card {
+    background: var(--blanco);
+    padding: 28px;
+    border-top: 1px solid #e8eef5;
+  }
+  .card:last-of-type {
+    border-radius: 0 0 20px 20px;
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--azul);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--azul-suave);
+  }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #502278;
+    margin-bottom: 6px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #d1dce8;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--texto);
+    background: var(--gris);
+    transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(56,73,103,0.1);
+  }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .dias-grid { display: grid; gap: 8px; }
+
+  .dia-card {
+    border: 1.5px solid #d1dce8;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .dia-card.bloqueado {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .dia-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: var(--gris);
+    user-select: none;
+  }
+  .dia-card.activo .dia-header {
+    background: var(--azul);
+    color: white;
+  }
+
+  .dia-check {
+    width: 22px; height: 22px;
+    border: 2px solid #aab8cc;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+  }
+  .dia-card.activo .dia-check {
+    background: white;
+    color: var(--azul);
+  }
+
+  .dia-nombre { font-size: 0.9rem; font-weight: 600; flex: 1; }
+  .dia-fecha-label { font-size: 0.75rem; opacity: 0.7; }
+
+  .dia-opciones {
+    display: none;
+    padding: 16px;
+    background: white;
+    gap: 14px;
+    flex-direction: column;
+  }
+  .dia-card.activo .dia-opciones { display: flex; }
+
+  .opcion-group label.group-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #718096;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .radio-grid { display: grid; gap: 6px; }
+
+  .radio-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 13px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.88rem;
+  }
+  .radio-opt:hover { border-color: var(--azul-claro); }
+  .radio-opt input[type="radio"] { display: none; }
+
+  .radio-dot {
+    width: 18px; height: 18px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .radio-opt.selected {
+    border-color: var(--azul);
+    background: #f0f4f9;
+  }
+  .radio-opt.selected .radio-dot {
+    background: var(--azul);
+    border-color: var(--azul);
+    color: white;
+    font-size: 0.65rem;
+  }
+
+  .msg {
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  .msg.error {
+    display: block;
+    background: #fadbd8;
+    color: #922b21;
+    border: 1px solid #f5b7b1;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-submit:hover { background: #2d3a52; }
+  .btn-submit:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .resumen {
+    display: none;
+    background: #d5f4e6;
+    border: 1px solid #7ddbca;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .resumen-titulo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--azul);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .resumen-subtitulo {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a2535;
+    margin-bottom: 14px;
+  }
+
+  .resumen-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+  }
+  .resumen-item:last-of-type { border-bottom: none; }
+  .resumen-item span { color: #4a5e3a; }
+  .resumen-item strong { color: var(--azul); }
+
+  .resumen-detalle {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.5);
+  }
+
+  .resumen-final {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--azul);
+  }
+
+  .ayuda-text {
+    background: #f0f4f9;
+    padding: 12px 16px;
+    margin-top: 20px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #502278;
+    line-height: 1.5;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <img src="https://raw.githubusercontent.com/pregurgourmet/pedidos-yamboly/main/Cabecera.png" alt="YAMBOLY" class="cabecera">
+  
+  <div class="fecha-bar" id="fechaBar">
+    📅 Cargando fecha...
+  </div>
+
+  <div id="msgError" class="msg"></div>
+  <div id="resumenPedido" class="resumen"></div>
+
+  <form id="formulario">
+    <!-- DATOS PERSONALES -->
+    <div class="card">
+      <div class="section-title">📋 Tus Datos</div>
+      
+      <div class="field-row">
+        <div class="field">
+          <label>DNI *</label>
+          <input type="text" id="dni" placeholder="12345678" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label>Nombres *</label>
+          <input type="text" id="nombres" placeholder="Juan" required>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Apellidos *</label>
+          <input type="text" id="apellidos" placeholder="Pérez" required>
+        </div>
+        <div class="field">
+          <label>Cargo *</label>
+          <input type="text" id="cargo" placeholder="Ej: Operario" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Área/Departamento *</label>
+        <input type="text" id="area" placeholder="Ej: Producción" required>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Teléfono (opcional)</label>
+          <input type="tel" id="telefono" placeholder="987654321">
+        </div>
+        <div class="field">
+          <label>Email (opcional)</label>
+          <input type="email" id="correo" placeholder="tu@email.com">
+        </div>
+      </div>
+    </div>
+
+    <!-- DÍAS Y MENÚ -->
+    <div class="card">
+      <div class="section-title">📅 Selecciona tus días</div>
+      <div id="diasGrid" class="dias-grid"></div>
+      <div id="loadingMenu" style="text-align:center; padding:20px; color:#718096;">Cargando días disponibles...</div>
+      <div id="sinDias" style="display:none; text-align:center; padding:20px; color:#a0aec0;">No hay días disponibles.</div>
+    </div>
+
+    <!-- BOTÓN -->
+    <div class="card">
+      <button type="submit" class="btn-submit" id="btnSubmit">
+        <span id="btnTexto">Registrar mi pedido</span>
+        <div id="spinner" class="spinner"></div>
+      </button>
+
+      <div class="ayuda-text">
+        ¿Dudas o cancelaciones?<br>
+        Contacta al área de <strong>Bienestar Social</strong>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpi3l2uP68bp37RFAxVQAEgZ63Wve1FYrnAfepy2mamXkcfz60GejldOpi_t-FEDiMZw/exec';
+  
+  let diasDisponibles = [];
+  let menuSemanal = null;
+  let hayMenuProxima = false;
+
+  // ============================================================
+  // CARGAR MENÚ DESDE SHEETS (igual a Drimer)
+  // ============================================================
+  async function cargarMenuDesdeSheets() {
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?action=getMenu`);
+      const data = await resp.json();
+      if (data.status === 'OK' && data.menuPorSemana) {
+        menuSemanal = data.menuPorSemana;
+        console.log('✅ Menú cargado:', JSON.stringify(menuSemanal));
+      }
+    } catch (err) {
+      console.log('⚠️ Error cargando menú:', err);
+      menuSemanal = null;
+    }
+  }
+
+  function getLunesDeSemana(fechaISO) {
+    const fecha = new Date(fechaISO + 'T12:00:00');
+    const dia = fecha.getDay();
+    const diff = (dia === 0 ? -6 : 1 - dia);
+    fecha.setDate(fecha.getDate() + diff);
+    const yyyy = fecha.getFullYear();
+    const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dd = String(fecha.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function getOpcionesMenu(nombreDia, fechaISO) {
+    const fallback = {
+      sopa: 'Sopa del día',
+      entrada: 'Entrada',
+      fondo_1: 'Fondo especial',
+      fondo_2: 'Fondo light',
+      opcion_light: 'Opción Light',
+      postre: 'Postre',
+      bebida: 'Bebida'
+    };
+
+    if (!menuSemanal) {
+      console.log('⚠️ menuSemanal es null');
+      return fallback;
+    }
+
+    const lunesDeSemana = getLunesDeSemana(fechaISO);
+    const menuSemana = menuSemanal[lunesDeSemana];
+
+    if (!menuSemana || !menuSemana[nombreDia]) {
+      console.log('⚠️ No hay menú para ' + nombreDia + ' en semana ' + lunesDeSemana);
+      return fallback;
+    }
+
+    console.log('✅ Menú encontrado para ' + nombreDia + ': ' + JSON.stringify(menuSemana[nombreDia]));
+    return menuSemana[nombreDia];
+  }
+
+
+
+
+  // ============================================================
+  // INICIALIZACIÓN
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', async () => {
+    actualizarFecha();
+    await cargarMenuDesdeSheets();
+    generarDias();
+  });
+
+  function actualizarFecha() {
+    const hoy = new Date();
+    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const nombresMeses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    
+    const texto = `📅 ${nombresDias[hoy.getDay()]}, ${hoy.getDate()} de ${nombresMeses[hoy.getMonth()]} de ${hoy.getFullYear()}`;
+    document.getElementById('fechaBar').textContent = texto;
+  }
+
+  function obtenerDiasDisponibles() {
+    const hoy = new Date();
+    const diaSemanaHoy = hoy.getDay();
+    let haCerradoHoy = false; // Siempre false: formulario abierto 24/7
+
+    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const nombresMeses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+    const diasDisponibles = [];
+
+    let fechaInicio, fechaFin;
+
+    if (diaSemanaHoy === 0 || diaSemanaHoy === 6) {
+      // Sábado o domingo: toda la siguiente semana (Lunes-Sábado)
+      fechaInicio = new Date(hoy);
+      const diasAlProximoLunes = diaSemanaHoy === 0 ? 1 : 2;
+      fechaInicio.setDate(fechaInicio.getDate() + diasAlProximoLunes);
+      
+      fechaFin = new Date(fechaInicio);
+      fechaFin.setDate(fechaFin.getDate() + 5); // Lunes + 5 = Sábado
+    } else if (diaSemanaHoy === 5) {
+      // VIERNES
+      if (haCerradoHoy) {
+        // DESPUÉS de 8am: Sábado + siguiente semana (Lunes-Sábado)
+        fechaInicio = new Date(hoy);
+        fechaInicio.setDate(fechaInicio.getDate() + 1); // Sábado
+        
+        fechaFin = new Date(fechaInicio);
+        fechaFin.setDate(fechaFin.getDate() + 7); // Sábado + 7 = próximo sábado
+      } else {
+        // ANTES de 8am: Viernes + Sábado + siguiente semana (Lunes-Sábado)
+        fechaInicio = new Date(hoy);
+        fechaFin = new Date(hoy);
+        fechaFin.setDate(fechaFin.getDate() + 8); // Viernes + 8 = próximo sábado
+      }
+    } else if (diaSemanaHoy === 6) {
+      // SÁBADO: siguiente semana (Lunes-Sábado)
+      fechaInicio = new Date(hoy);
+      fechaInicio.setDate(fechaInicio.getDate() + 2); // Lunes
+      
+      fechaFin = new Date(fechaInicio);
+      fechaFin.setDate(fechaFin.getDate() + 5); // Lunes + 5 = sábado siguiente
+    } else {
+      // Lunes-Jueves: hasta sábado de esa semana
+      fechaInicio = new Date(hoy);
+      fechaFin = new Date(fechaInicio);
+      const diasAlSabado = 6 - fechaInicio.getDay();
+      fechaFin.setDate(fechaFin.getDate() + diasAlSabado);
+    }
+
+    let fecha = new Date(fechaInicio);
+    let diasPasadosMostrados = 0;
+    
+    while (fecha <= fechaFin) {
+      const diaSemana = fecha.getDay();
+      if (diaSemana !== 0) {
+        const fechaISO = fecha.toISOString().split('T')[0];
+        const nombre = nombresDias[diaSemana];
+        const fechaTexto = `${fecha.getDate()} de ${nombresMeses[fecha.getMonth()]}`;
+
+        // VALIDAR: Si es un día pasado y ya mostramos 1 después de 8am, no mostrar
+        if (haCerradoHoy && fecha < hoy) {
+          diasPasadosMostrados++;
+          if (diasPasadosMostrados > 1) {
+            fecha.setDate(fecha.getDate() + 1);
+            continue; // Saltar este día
+          }
+        }
+
+        let bloqueado = false;
+        let textoBloqueado = '';
+
+        // VALIDAR: Verificar que el día tenga datos en el menú
+        let tieneData = false;
+        if (menuSemanal) {
+          // Calcular el lunes de la semana de esta fecha
+          const lunesSemanaBuscada = new Date(fecha);
+          const diaFecha = lunesSemanaBuscada.getDay();
+          const diff = (diaFecha === 0 ? -6 : 1 - diaFecha);
+          lunesSemanaBuscada.setDate(lunesSemanaBuscada.getDate() + diff);
+          const lunesISO = lunesSemanaBuscada.toISOString().split('T')[0];
+          
+          if (menuSemanal[lunesISO]) {
+            const menuDia = menuSemanal[lunesISO][nombre];
+            // Verificar si al menos UN campo tiene datos (no es fallback)
+            if (menuDia) {
+              const tieneSopa = menuDia.sopa && menuDia.sopa !== 'Sopa del día';
+              const tieneEntrada = menuDia.entrada && menuDia.entrada !== 'Entrada';
+              const tieneFondo1 = menuDia.fondo_1 && menuDia.fondo_1 !== 'Fondo especial';
+              const tieneFondo2 = menuDia.fondo_2 && menuDia.fondo_2 !== 'Fondo light';
+              const tieneLight = menuDia.opcion_light && menuDia.opcion_light !== 'Opción Light';
+              const tienePostre = menuDia.postre && menuDia.postre !== 'Postre';
+              const tieneBebida = menuDia.bebida && menuDia.bebida !== 'Bebida';
+              
+              tieneData = tieneSopa || tieneEntrada || tieneFondo1 || tieneFondo2 || tieneLight || tienePostre || tieneBebida;
+            }
+          }
+        }
+
+        // Solo agregar el día si tiene datos o no hay menú cargado aún
+        if (tieneData || !menuSemanal) {
+          diasDisponibles.push({
+            id: fechaISO,
+            nombre: nombre,
+            fecha: fechaTexto,
+            fechaISO: fechaISO,
+            bloqueado: bloqueado,
+            textoBloqueado: textoBloqueado
+          });
+        }
+      }
+      fecha.setDate(fecha.getDate() + 1);
+    }
+
+    return diasDisponibles;
+  }
+
+  function generarDias() {
+    diasDisponibles = obtenerDiasDisponibles();
+    
+    const grid = document.getElementById('diasGrid');
+    grid.innerHTML = '';
+
+    document.getElementById('loadingMenu').style.display = 'none';
+
+    if (diasDisponibles.length === 0) {
+      document.getElementById('sinDias').style.display = 'block';
+      return;
+    }
+
+    diasDisponibles.forEach((dia) => {
+      const card = document.createElement('div');
+      card.className = `dia-card${dia.bloqueado ? ' bloqueado' : ''}`;
+      card.id = `card_${dia.id}`;
+
+      if (dia.bloqueado) {
+        card.innerHTML = `
+          <div class="dia-header" style="cursor:not-allowed;">
+            <div class="dia-check">—</div>
+            <div style="flex:1;">
+              <div class="dia-nombre" style="text-decoration:line-through; opacity:0.6;">${dia.nombre}</div>
+              <div class="dia-fecha-label" style="text-decoration:line-through;">${dia.fecha}</div>
+            </div>
+            <div style="font-size:0.75rem; opacity:0.6;">${dia.textoBloqueado}</div>
+          </div>`;
+      } else {
+        const m = getOpcionesMenu(dia.nombre, dia.fechaISO);
+        card.innerHTML = `
+          <div class="dia-header" onclick="toggleDia('${dia.id}')">
+            <div class="dia-check" id="check_${dia.id}">☐</div>
+            <div style="flex:1;">
+              <div class="dia-nombre">${dia.nombre}</div>
+              <div class="dia-fecha-label">${dia.fecha}</div>
+            </div>
+            <div style="font-size:1.2rem;">🍽️</div>
+          </div>
+          <div class="dia-opciones" id="opciones_${dia.id}">
+            <div class="opcion-group">
+              <label class="group-label">Entrada</label>
+              <div class="radio-grid">
+                <label class="radio-opt" onclick="selectRadio(this, 'entrada_${dia.id}')">
+                  <input type="radio" name="entrada_${dia.id}" value="${m.sopa}">
+                  <div class="radio-dot"></div>
+                  🍜 ${m.sopa}
+                </label>
+                <label class="radio-opt" onclick="selectRadio(this, 'entrada_${dia.id}')">
+                  <input type="radio" name="entrada_${dia.id}" value="${m.entrada}">
+                  <div class="radio-dot"></div>
+                  🥗 ${m.entrada}
+                </label>
+              </div>
+            </div>
+            <div class="opcion-group">
+              <label class="group-label">Plato de Fondo</label>
+              <div class="radio-grid">
+                <label class="radio-opt" onclick="selectRadio(this, 'fondo_${dia.id}')">
+                  <input type="radio" name="fondo_${dia.id}" value="${m.fondo_1}">
+                  <div class="radio-dot"></div>
+                  🍽️ ${m.fondo_1}
+                </label>
+                <label class="radio-opt" onclick="selectRadio(this, 'fondo_${dia.id}')">
+                  <input type="radio" name="fondo_${dia.id}" value="${m.fondo_2}">
+                  <div class="radio-dot"></div>
+                  🍽️ ${m.fondo_2}
+                </label>
+                <label class="radio-opt" onclick="selectRadio(this, 'fondo_${dia.id}')">
+                  <input type="radio" name="fondo_${dia.id}" value="${m.opcion_light}">
+                  <div class="radio-dot"></div>
+                  🥦 ${m.opcion_light}
+                </label>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      grid.appendChild(card);
+    });
+  }
+
+  function toggleDia(diaId) {
+    const card = document.getElementById(`card_${diaId}`);
+    const check = document.getElementById(`check_${diaId}`);
+    const activo = card.classList.contains('activo');
+    
+    if (activo) {
+      card.classList.remove('activo');
+      check.textContent = '☐';
+      const radios = card.querySelectorAll('.radio-opt');
+      radios.forEach(r => r.classList.remove('selected'));
+      const inputs = card.querySelectorAll('input[type="radio"]');
+      inputs.forEach(i => i.checked = false);
+    } else {
+      card.classList.add('activo');
+      check.textContent = '✓';
+    }
+  }
+
+  function selectRadio(label, groupName) {
+    const group = label.closest('.radio-grid');
+    group.querySelectorAll('.radio-opt').forEach(l => l.classList.remove('selected'));
+    label.classList.add('selected');
+    label.querySelector('input').checked = true;
+  }
+
+  document.getElementById('formulario').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    ocultarMensaje();
+
+    const dni = document.getElementById('dni').value.trim();
+    const nombres = document.getElementById('nombres').value.trim();
+    const apellidos = document.getElementById('apellidos').value.trim();
+    const cargo = document.getElementById('cargo').value.trim();
+    const area = document.getElementById('area').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const correo = document.getElementById('correo').value.trim();
+
+    if (!dni || !/^\d{8}$/.test(dni)) return mostrarError('El DNI debe tener exactamente 8 dígitos.');
+    if (!nombres) return mostrarError('Por favor ingresa tu nombre(s).');
+    if (!apellidos) return mostrarError('Por favor ingresa tu apellido(s).');
+    if (!cargo) return mostrarError('Por favor ingresa tu cargo.');
+    if (!area) return mostrarError('Por favor ingresa tu área/departamento.');
+
+    const pedidos = [];
+    const diasActivos = document.querySelectorAll('.dia-card.activo');
+    
+    if (diasActivos.length === 0) return mostrarError('Selecciona al menos un día para pedir tu almuerzo.');
+
+    let hayError = false;
+    diasActivos.forEach(card => {
+      const cardId = card.id.replace('card_', '');
+      const diaInfo = diasDisponibles.find(d => d.id === cardId);
+      
+      const entradaInput = card.querySelector(`input[name="entrada_${cardId}"]:checked`);
+      const fondoInput = card.querySelector(`input[name="fondo_${cardId}"]:checked`);
+
+      if (!entradaInput || !fondoInput) {
+        hayError = true;
+        return;
+      }
+
+      pedidos.push({
+        fecha: diaInfo.fechaISO,
+        fechaTexto: `${diaInfo.nombre} ${diaInfo.fecha}`,
+        entrada: entradaInput.value,
+        fondo: fondoInput.value
+      });
+    });
+
+    if (hayError) return mostrarError('Completa entrada y plato de fondo para todos los días seleccionados.');
+
+    document.getElementById('btnSubmit').disabled = true;
+    document.getElementById('btnTexto').textContent = 'Enviando...';
+    document.getElementById('spinner').style.display = 'block';
+
+    const datos = {
+      dni, nombres, apellidos, cargo, area, telefono, correo,
+      pedidos: pedidos,
+      totalAlmuerzos: pedidos.length,
+      fechaRegistro: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' })
+    };
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(datos)
+      });
+
+      mostrarResumen(datos);
+      document.getElementById('formulario').style.display = 'none';
+
+    } catch (error) {
+      mostrarError('Ocurrió un error. Intenta nuevamente.');
+      document.getElementById('btnSubmit').disabled = false;
+      document.getElementById('btnTexto').textContent = 'Registrar mi pedido';
+      document.getElementById('spinner').style.display = 'none';
+    }
+  });
+
+  function mostrarResumen(datos) {
+    const div = document.getElementById('resumenPedido');
+    
+    let html = `<div class="resumen-titulo">¡Pedido Realizado!</div>`;
+    
+    html += `<div class="resumen-subtitulo">Detalle de tu pedido:</div>`;
+    html += `<div class="resumen-item"><span>Nombre</span><strong>${datos.nombres} ${datos.apellidos}</strong></div>`;
+    html += `<div class="resumen-item"><span>DNI</span><strong>${datos.dni}</strong></div>`;
+    html += `<div class="resumen-item"><span>Cargo</span><strong>${datos.cargo}</strong></div>`;
+    html += `<div class="resumen-item"><span>Área</span><strong>${datos.area}</strong></div>`;
+    html += `<div class="resumen-item"><span>Total de almuerzos</span><strong>${datos.totalAlmuerzos}</strong></div>`;
+    
+    html += `<div class="resumen-detalle">`;
+    datos.pedidos.forEach(p => {
+      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.3); border-radius: 6px;">
+        <div style="font-weight: 700; color: #1a2535; margin-bottom: 4px;">${p.fechaTexto}</div>
+        <div style="color: #4a5e3a; font-size: 0.85rem;">${p.entrada} · ${p.fondo}</div>
+      </div>`;
+    });
+    html += `</div>`;
+    
+    html += `<div class="resumen-final">🍽️ ¡Disfruta tu almuerzo!</div>`;
+    
+    div.innerHTML = html;
+    div.style.display = 'block';
+  }
+
+  function mostrarError(msg) {
+    const el = document.getElementById('msgError');
+    el.textContent = '⚠️ ' + msg;
+    el.className = 'msg error';
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function ocultarMensaje() {
+    const el = document.getElementById('msgError');
+    el.className = 'msg';
+  }
+
+  document.getElementById('dni').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 8);
+  });
+</script>
+</body>
+</html>
