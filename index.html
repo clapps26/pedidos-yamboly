@@ -257,46 +257,60 @@
     display: none;
     background: linear-gradient(135deg, rgba(80,34,120,0.95), rgba(80,34,120,0.85));
     color: white;
-    padding: 24px;
-    border-radius: 20px;
-    margin-top: 20px;
+    padding: 40px 24px;
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .resumen.activo {
+    display: flex;
   }
 
   .resumen-titulo {
-    font-size: 1.6rem;
+    font-size: 2.2rem;
     font-weight: 700;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 32px;
   }
 
   .resumen-subtitulo {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
     opacity: 0.9;
   }
 
   .resumen-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 12px 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    max-width: 600px;
   }
   .resumen-item span { opacity: 0.8; }
   .resumen-item strong { font-weight: 600; }
 
   .resumen-detalle {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
     border-top: 1px solid rgba(255,255,255,0.2);
+    max-width: 600px;
   }
 
   .resumen-final {
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    margin-top: 16px;
+    margin-top: 32px;
   }
 
   .ayuda-text {
@@ -790,7 +804,17 @@
     html += `<div class="resumen-final">🍽️ ¡Disfruta tu almuerzo!</div>`;
     
     div.innerHTML = html;
-    div.style.display = 'block';
+    div.classList.add('activo');
+    
+    // Ocultar todo lo demás
+    document.querySelector('.cabecera').style.display = 'none';
+    document.querySelector('.fecha-bar').style.display = 'none';
+    document.getElementById('formulario').style.display = 'none';
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => card.style.display = 'none');
+    
+    // Scroll a la parte superior
+    window.scrollTo(0, 0);
   }
 
   function mostrarError(msg) {
