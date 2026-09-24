@@ -255,345 +255,263 @@
 
   .resumen {
     display: none;
-    background: #d5f4e6;
-    border: 1px solid #7ddbca;
-    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(80,34,120,0.95), rgba(80,34,120,0.85));
+    color: white;
     padding: 24px;
-    margin-bottom: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
   }
-  
+
   .resumen-titulo {
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    color: var(--azul);
     text-align: center;
     margin-bottom: 20px;
   }
 
   .resumen-subtitulo {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #1a2535;
-    margin-bottom: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    opacity: 0.9;
   }
 
   .resumen-item {
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.5);
-    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.9rem;
   }
-  .resumen-item:last-of-type { border-bottom: none; }
-  .resumen-item span { color: #4a5e3a; }
-  .resumen-item strong { color: var(--azul); }
+  .resumen-item span { opacity: 0.8; }
+  .resumen-item strong { font-weight: 600; }
 
   .resumen-detalle {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.5);
+    border-top: 1px solid rgba(255,255,255,0.2);
   }
 
   .resumen-final {
     text-align: center;
-    margin-top: 16px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    color: var(--azul);
+    margin-top: 16px;
   }
 
   .ayuda-text {
-    background: #f0f4f9;
-    padding: 12px 16px;
-    margin-top: 20px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: #502278;
-    line-height: 1.5;
     text-align: center;
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 20px;
+    line-height: 1.4;
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <img src="https://raw.githubusercontent.com/pregurgourmet/pedidos-yamboly/main/Cabecera.png" alt="YAMBOLY" class="cabecera">
+  <img src="https://raw.githubusercontent.com/clapps26/pedidos-yamboly/main/Cabecera.png" alt="Cabecera" class="cabecera">
   
-  <div class="fecha-bar" id="fechaBar">
-    📅 Cargando fecha...
+  <div class="fecha-bar">
+    <span id="fechaHoy">Cargando...</span>
   </div>
 
-  <div id="msgError" class="msg"></div>
-  <div id="resumenPedido" class="resumen"></div>
+  <form id="formulario" class="card">
+    <div id="msgError" class="msg"></div>
 
-  <form id="formulario">
-    <!-- DATOS PERSONALES -->
-    <div class="card">
-      <div class="section-title">📋 Tus Datos</div>
-      
-      <div class="field-row">
-        <div class="field">
-          <label>DNI *</label>
-          <input type="text" id="dni" placeholder="12345678" maxlength="8" required>
-        </div>
-        <div class="field">
-          <label>Nombres *</label>
-          <input type="text" id="nombres" placeholder="Juan" required>
-        </div>
-      </div>
+    <div class="section-title">📋 Tus Datos</div>
 
-      <div class="field-row">
-        <div class="field">
-          <label>Apellidos *</label>
-          <input type="text" id="apellidos" placeholder="Pérez" required>
-        </div>
-        <div class="field">
-          <label>Cargo *</label>
-          <input type="text" id="cargo" placeholder="Ej: Operario" required>
-        </div>
-      </div>
+    <div class="field">
+      <label>DNI *</label>
+      <input type="text" id="dni" placeholder="12345678" maxlength="8" required>
+    </div>
 
+    <div class="field-row">
       <div class="field">
-        <label>Área/Departamento *</label>
-        <input type="text" id="area" placeholder="Ej: Producción" required>
+        <label>Nombres *</label>
+        <input type="text" id="nombres" placeholder="Juan" required>
       </div>
-
-      <div class="field-row">
-        <div class="field">
-          <label>Teléfono (opcional)</label>
-          <input type="tel" id="telefono" placeholder="987654321">
-        </div>
-        <div class="field">
-          <label>Email (opcional)</label>
-          <input type="email" id="correo" placeholder="tu@email.com">
-        </div>
+      <div class="field">
+        <label>Apellidos *</label>
+        <input type="text" id="apellidos" placeholder="Pérez" required>
       </div>
     </div>
 
-    <!-- DÍAS Y MENÚ -->
-    <div class="card">
-      <div class="section-title">📅 Selecciona tus días</div>
-      <div id="diasGrid" class="dias-grid"></div>
-      <div id="loadingMenu" style="text-align:center; padding:20px; color:#718096;">Cargando días disponibles...</div>
-      <div id="sinDias" style="display:none; text-align:center; padding:20px; color:#a0aec0;">No hay días disponibles.</div>
+    <div class="field">
+      <label>Cargo *</label>
+      <input type="text" id="cargo" placeholder="Operario" required>
     </div>
 
-    <!-- BOTÓN -->
-    <div class="card">
-      <button type="submit" class="btn-submit" id="btnSubmit">
-        <span id="btnTexto">Registrar mi pedido</span>
-        <div id="spinner" class="spinner"></div>
-      </button>
+    <div class="field">
+      <label>Área/Departamento *</label>
+      <input type="text" id="area" placeholder="Ej: Producción" required>
+    </div>
 
-      <div class="ayuda-text">
-        ¿Dudas o cancelaciones?<br>
-        Contacta al área de <strong>Bienestar Social</strong>
+    <div class="field-row">
+      <div class="field">
+        <label>Teléfono (opcional)</label>
+        <input type="tel" id="telefono" placeholder="987654321">
+      </div>
+      <div class="field">
+        <label>Email (opcional)</label>
+        <input type="email" id="correo" placeholder="tu@email.com">
       </div>
     </div>
   </form>
+
+  <div class="card">
+    <div class="section-title">📅 Selecciona tus días</div>
+    <div id="diasGrid" class="dias-grid"></div>
+    <div id="loadingMenu" style="text-align:center; padding:20px; color:#718096;">Cargando días disponibles...</div>
+    <div id="sinDias" style="display:none; text-align:center; padding:20px; color:#a0aec0;">No hay días disponibles.</div>
+  </div>
+
+  <div class="card">
+    <button type="submit" class="btn-submit" id="btnSubmit" form="formulario">
+      <span id="btnTexto">Registrar mi pedido</span>
+      <div id="spinner" class="spinner"></div>
+    </button>
+
+    <div class="ayuda-text">
+      ¿Dudas o cancelaciones?<br>
+      Contacta al área de <strong>Bienestar Social</strong>
+    </div>
+  </div>
+
+  <div id="resumenPedido" class="resumen"></div>
 </div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwvDqw6EIE3zoHr7XROXOmPsPKBBeYv78MjGZVCTaFhnv8Be1WIoHOKiBEOR4IPlDs4w/exec';
   
   let diasDisponibles = [];
-  let menuSemanal = null;
-  let hayMenuProxima = false;
+  let menuData = null;
 
   // ============================================================
-  // CARGAR MENÚ DESDE SHEETS (igual a Drimer)
+  // CARGAR MENÚ DESDE APPS SCRIPT
   // ============================================================
   async function cargarMenuDesdeSheets() {
     try {
       const resp = await fetch(`${SCRIPT_URL}?action=getMenu`);
       const data = await resp.json();
-      if (data.status === 'OK' && data.menuPorSemana) {
-        menuSemanal = data.menuPorSemana;
-        console.log('✅ Menú cargado:', JSON.stringify(menuSemanal));
+      if (data.semana1 && data.semana2) {
+        menuData = data;
+        console.log('✅ Menú cargado:', JSON.stringify(menuData));
+        generarDias();
+      } else {
+        console.log('⚠️ Estructura de menú incorrecta');
+        generarDias();
       }
     } catch (err) {
       console.log('⚠️ Error cargando menú:', err);
-      menuSemanal = null;
+      menuData = null;
+      generarDias();
     }
   }
 
-  function getLunesDeSemana(fechaISO) {
-    const fecha = new Date(fechaISO + 'T12:00:00');
-    const dia = fecha.getDay();
-    const diff = (dia === 0 ? -6 : 1 - dia);
-    fecha.setDate(fecha.getDate() + diff);
-    const yyyy = fecha.getFullYear();
-    const mm = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dd = String(fecha.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+  function formatearFecha(date) {
+    const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('es-PE', opciones)
+      .replace(/^\w/, c => c.toUpperCase());
+  }
+
+  function obtenerDiasDisponibles() {
+    const ahora = new Date();
+    const horaActual = ahora.getHours();
+    
+    // Actualizar barra de fecha
+    document.getElementById('fechaHoy').textContent = `📅 ${formatearFecha(ahora)}`;
+
+    const diasDisponibles = [];
+    const fecha = new Date(ahora);
+    fecha.setHours(0, 0, 0, 0);
+
+    // Generar próximos 30 días
+    for (let i = 0; i < 30; i++) {
+      const fechaISO = fecha.toISOString().split('T')[0];
+      const nombreDia = fecha.toLocaleDateString('es-PE', { weekday: 'long' })
+        .replace(/^\w/, c => c.toUpperCase());
+      const fechaTexto = fecha.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })
+        .replace(/^\w/, c => c.toUpperCase());
+
+      const diaSemana = fecha.getDay();
+      const esDomingo = diaSemana === 0;
+      const esHoy = i === 0;
+      
+      // REGLA: No mostrar domingos
+      if (esDomingo) {
+        fecha.setDate(fecha.getDate() + 1);
+        continue;
+      }
+
+      // REGLA: Hoy después de las 8 AM → BLOQUEADO
+      let bloqueado = false;
+      let textoBloqueado = '';
+      
+      if (esHoy && horaActual >= 8) {
+        bloqueado = true;
+        textoBloqueado = 'Plazo cerrado';
+      }
+
+      // REGLA: Si es HOY y no es bloqueado, mostrar
+      // REGLA: Si es mañana o después, mostrar solo si es FUTURO (no pasado)
+      if (i > 0 || !bloqueado) {
+        diasDisponibles.push({
+          id: fechaISO,
+          nombre: nombreDia,
+          fecha: fechaTexto,
+          fechaISO: fechaISO,
+          bloqueado: bloqueado,
+          textoBloqueado: textoBloqueado
+        });
+      }
+
+      fecha.setDate(fecha.getDate() + 1);
+    }
+
+    return diasDisponibles;
   }
 
   function getOpcionesMenu(nombreDia, fechaISO) {
     const fallback = {
       sopa: 'Sopa del día',
       entrada: 'Entrada',
-      fondo_1: 'Fondo especial',
-      fondo_2: 'Fondo light',
-      opcion_light: 'Opción Light',
-      postre: 'Postre',
-      bebida: 'Bebida'
+      fondo_1: 'Fondo 1',
+      fondo_2: 'Fondo 2',
+      opcion_light: 'Opción Light'
     };
 
-    if (!menuSemanal) {
-      console.log('⚠️ menuSemanal es null');
+    if (!menuData) {
+      console.log('⚠️ menuData es null');
       return fallback;
     }
 
-    const lunesDeSemana = getLunesDeSemana(fechaISO);
-    const menuSemana = menuSemanal[lunesDeSemana];
+    // Determinar cuál semana usar basado en la fecha
+    const fecha = new Date(fechaISO + 'T12:00:00');
+    const fecha1 = new Date(menuData.semana1.inicio);
+    const fecha2 = new Date(menuData.semana2.inicio);
+
+    let menuSemana = null;
+    if (fecha >= fecha1 && fecha < fecha2) {
+      menuSemana = menuData.semana1.menu;
+    } else if (fecha >= fecha2) {
+      menuSemana = menuData.semana2.menu;
+    }
 
     if (!menuSemana || !menuSemana[nombreDia]) {
-      console.log('⚠️ No hay menú para ' + nombreDia + ' en semana ' + lunesDeSemana);
+      console.log(`⚠️ No hay menú para ${nombreDia}`);
       return fallback;
     }
 
-    console.log('✅ Menú encontrado para ' + nombreDia + ': ' + JSON.stringify(menuSemana[nombreDia]));
-    return menuSemana[nombreDia];
-  }
-
-
-
-
-  // ============================================================
-  // INICIALIZACIÓN
-  // ============================================================
-  document.addEventListener('DOMContentLoaded', async () => {
-    actualizarFecha();
-    await cargarMenuDesdeSheets();
-    generarDias();
-  });
-
-  function actualizarFecha() {
-    const hoy = new Date();
-    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const nombresMeses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-    
-    const texto = `📅 ${nombresDias[hoy.getDay()]}, ${hoy.getDate()} de ${nombresMeses[hoy.getMonth()]} de ${hoy.getFullYear()}`;
-    document.getElementById('fechaBar').textContent = texto;
-  }
-
-  function obtenerDiasDisponibles() {
-    const hoy = new Date();
-    const diaSemanaHoy = hoy.getDay();
-    let haCerradoHoy = false; // Siempre false: formulario abierto 24/7
-
-    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const nombresMeses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
-    const diasDisponibles = [];
-
-    let fechaInicio, fechaFin;
-
-    if (diaSemanaHoy === 0 || diaSemanaHoy === 6) {
-      // Sábado o domingo: toda la siguiente semana (Lunes-Sábado)
-      fechaInicio = new Date(hoy);
-      const diasAlProximoLunes = diaSemanaHoy === 0 ? 1 : 2;
-      fechaInicio.setDate(fechaInicio.getDate() + diasAlProximoLunes);
-      
-      fechaFin = new Date(fechaInicio);
-      fechaFin.setDate(fechaFin.getDate() + 5); // Lunes + 5 = Sábado
-    } else if (diaSemanaHoy === 5) {
-      // VIERNES
-      if (haCerradoHoy) {
-        // DESPUÉS de 8am: Sábado + siguiente semana (Lunes-Sábado)
-        fechaInicio = new Date(hoy);
-        fechaInicio.setDate(fechaInicio.getDate() + 1); // Sábado
-        
-        fechaFin = new Date(fechaInicio);
-        fechaFin.setDate(fechaFin.getDate() + 7); // Sábado + 7 = próximo sábado
-      } else {
-        // ANTES de 8am: Viernes + Sábado + siguiente semana (Lunes-Sábado)
-        fechaInicio = new Date(hoy);
-        fechaFin = new Date(hoy);
-        fechaFin.setDate(fechaFin.getDate() + 8); // Viernes + 8 = próximo sábado
-      }
-    } else if (diaSemanaHoy === 6) {
-      // SÁBADO: siguiente semana (Lunes-Sábado)
-      fechaInicio = new Date(hoy);
-      fechaInicio.setDate(fechaInicio.getDate() + 2); // Lunes
-      
-      fechaFin = new Date(fechaInicio);
-      fechaFin.setDate(fechaFin.getDate() + 5); // Lunes + 5 = sábado siguiente
-    } else {
-      // Lunes-Jueves: hasta sábado de esa semana
-      fechaInicio = new Date(hoy);
-      fechaFin = new Date(fechaInicio);
-      const diasAlSabado = 6 - fechaInicio.getDay();
-      fechaFin.setDate(fechaFin.getDate() + diasAlSabado);
-    }
-
-    let fecha = new Date(fechaInicio);
-    let diasPasadosMostrados = 0;
-    
-    while (fecha <= fechaFin) {
-      const diaSemana = fecha.getDay();
-      if (diaSemana !== 0) {
-        const fechaISO = fecha.toISOString().split('T')[0];
-        const nombre = nombresDias[diaSemana];
-        const fechaTexto = `${fecha.getDate()} de ${nombresMeses[fecha.getMonth()]}`;
-
-        // VALIDAR: Si es un día pasado y ya mostramos 1 después de 8am, no mostrar
-        if (haCerradoHoy && fecha < hoy) {
-          diasPasadosMostrados++;
-          if (diasPasadosMostrados > 1) {
-            fecha.setDate(fecha.getDate() + 1);
-            continue; // Saltar este día
-          }
-        }
-
-        let bloqueado = false;
-        let textoBloqueado = '';
-
-        // VALIDAR: Verificar que el día tenga datos en el menú
-        let tieneData = false;
-        if (menuSemanal) {
-          // Calcular el lunes de la semana de esta fecha
-          const lunesSemanaBuscada = new Date(fecha);
-          const diaFecha = lunesSemanaBuscada.getDay();
-          const diff = (diaFecha === 0 ? -6 : 1 - diaFecha);
-          lunesSemanaBuscada.setDate(lunesSemanaBuscada.getDate() + diff);
-          const lunesISO = lunesSemanaBuscada.toISOString().split('T')[0];
-          
-          if (menuSemanal[lunesISO]) {
-            const menuDia = menuSemanal[lunesISO][nombre];
-            // Verificar si al menos UN campo tiene datos (no es fallback)
-            if (menuDia) {
-              const tieneSopa = menuDia.sopa && menuDia.sopa !== 'Sopa del día';
-              const tieneEntrada = menuDia.entrada && menuDia.entrada !== 'Entrada';
-              const tieneFondo1 = menuDia.fondo_1 && menuDia.fondo_1 !== 'Fondo especial';
-              const tieneFondo2 = menuDia.fondo_2 && menuDia.fondo_2 !== 'Fondo light';
-              const tieneLight = menuDia.opcion_light && menuDia.opcion_light !== 'Opción Light';
-              const tienePostre = menuDia.postre && menuDia.postre !== 'Postre';
-              const tieneBebida = menuDia.bebida && menuDia.bebida !== 'Bebida';
-              
-              tieneData = tieneSopa || tieneEntrada || tieneFondo1 || tieneFondo2 || tieneLight || tienePostre || tieneBebida;
-            }
-          }
-        }
-
-        // Solo agregar el día si tiene datos o no hay menú cargado aún
-        if (tieneData || !menuSemanal) {
-          diasDisponibles.push({
-            id: fechaISO,
-            nombre: nombre,
-            fecha: fechaTexto,
-            fechaISO: fechaISO,
-            bloqueado: bloqueado,
-            textoBloqueado: textoBloqueado
-          });
-        }
-      }
-      fecha.setDate(fecha.getDate() + 1);
-    }
-
-    return diasDisponibles;
+    const menuDia = menuSemana[nombreDia];
+    return {
+      sopa: menuDia['Sopa'] || fallback.sopa,
+      entrada: menuDia['Entrada'] || fallback.entrada,
+      fondo_1: menuDia['Fondo 1'] || fallback.fondo_1,
+      fondo_2: menuDia['Fondo 2'] || fallback.fondo_2,
+      opcion_light: menuDia['Opción Light'] || fallback.opcion_light
+    };
   }
 
   function generarDias() {
@@ -601,7 +519,6 @@
     
     const grid = document.getElementById('diasGrid');
     grid.innerHTML = '';
-
     document.getElementById('loadingMenu').style.display = 'none';
 
     if (diasDisponibles.length === 0) {
@@ -794,8 +711,8 @@
     html += `<div class="resumen-detalle">`;
     datos.pedidos.forEach(p => {
       html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.3); border-radius: 6px;">
-        <div style="font-weight: 700; color: #1a2535; margin-bottom: 4px;">${p.fechaTexto}</div>
-        <div style="color: #4a5e3a; font-size: 0.85rem;">${p.entrada} · ${p.fondo}</div>
+        <div style="font-weight: 700; color: white; margin-bottom: 4px;">${p.fechaTexto}</div>
+        <div style="color: rgba(255,255,255,0.9); font-size: 0.85rem;">${p.entrada} · ${p.fondo}</div>
       </div>`;
     });
     html += `</div>`;
@@ -821,6 +738,9 @@
   document.getElementById('dni').addEventListener('input', function() {
     this.value = this.value.replace(/\D/g, '').slice(0, 8);
   });
+
+  // INICIALIZAR
+  document.addEventListener('DOMContentLoaded', cargarMenuDesdeSheets);
 </script>
 </body>
 </html>
