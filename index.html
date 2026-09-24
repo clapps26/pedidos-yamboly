@@ -424,50 +424,120 @@
     document.getElementById('fechaHoy').textContent = `📅 ${formatearFecha(ahora)}`;
 
     const diasDisponibles = [];
-    const fecha = new Date(ahora);
-    fecha.setHours(0, 0, 0, 0);
+    const diaSemanaHoy = ahora.getDay(); // 0=dom, 1=lun, 2=mar, ... 6=sab
+    const esAntesDe8am = horaActual < 8;
+    
+    // Función auxiliar: calcular próximo sábado desde fecha
+    function proximoSabado(fecha) {
+      const copia = new Date(fecha);
+      const diasHastaSabado = (6 - copia.getDay() + 7) % 7;
+      if (diasHastaSabado === 0 && copia.getDay() !== 6) {
+        // Si ya es sábado, retornar dentro de 7 días
+        copia.setDate(copia.getDate() + 7);
+      } else if (diasHastaSabado > 0) {
+        copia.setDate(copia.getDate() + diasHastaSabado);
+      }
+      return copia;
+    }
 
-    // Generar próximos 30 días
-    for (let i = 0; i < 30; i++) {
-      const fechaISO = fecha.toISOString().split('T')[0];
-      const nombreDia = fecha.toLocaleDateString('es-PE', { weekday: 'long' })
-        .replace(/^\w/, c => c.toUpperCase());
-      const fechaTexto = fecha.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })
-        .replace(/^\w/, c => c.toUpperCase());
+    // Generar todos los días (sin domingos) en los próximos 40 días
+    const todosDias = [];
+    const fechaInicio = new Date(ahora);
+    fechaInicio.setHours(0, 0, 0, 0);
 
-      const diaSemana = fecha.getDay();
-      const esDomingo = diaSemana === 0;
-      const esHoy = i === 0;
+    for (let offset = 0; offset < 50; offset++) {
+      const fecha = new Date(fechaInicio);
+      fecha.setDate(fecha.getDate() + offset);
       
-      // REGLA: No mostrar domingos
-      if (esDomingo) {
-        fecha.setDate(fecha.getDate() + 1);
-        continue;
-      }
-
-      // REGLA: Hoy después de las 8 AM → BLOQUEADO
-      let bloqueado = false;
-      let textoBloqueado = '';
+      if (fecha.getDay() === 0) continue; // Saltar domingos
       
-      if (esHoy && horaActual >= 8) {
-        bloqueado = true;
-        textoBloqueado = 'Plazo cerrado';
-      }
+      todosDias.push({
+        offset: offset,
+        fecha: fecha,
+        diaSemana: fecha.getDay()
+      });
+    }
 
-      // REGLA: Si es HOY y no es bloqueado, mostrar
-      // REGLA: Si es mañana o después, mostrar solo si es FUTURO (no pasado)
-      if (i > 0 || !bloqueado) {
-        diasDisponibles.push({
-          id: fechaISO,
-          nombre: nombreDia,
-          fecha: fechaTexto,
-          fechaISO: fechaISO,
-          bloqueado: bloqueado,
-          textoBloqueado: textoBloqueado
-        });
+    // Determinar cuáles días mostrar según la regla
+    let indicesAMostrar = [];
+    
+    if (diaSemanaHoy >= 1 && diaSemanaHoy <= 4) {
+      // LUNES-JUEVES
+      // Mostrar: hoy + hasta el próximo sábado
+      const proximoSab = proximoSabado(ahora);
+      for (let i = 0; i < todosDias.length; i++) {
+        if (todosDias[i].fecha <= proximoSab) {
+          indicesAMostrar.push(i);
+        } else {
+          break;
+        }
       }
+    } else if (diaSemanaHoy === 5) {
+      // VIERNES
+      if (esAntesDe8am) {
+        // ANTES 8am: Mostrar Viernes + Sábado + próxima semana (L-S)
+        const proximoSab = proximoSabado(ahora);
+        const proximoLunes = new Date(proximoSab);
+        proximoLunes.setDate(proximoLunes.getDate() + 1); // Lunes siguiente al sábado
+        const proximoSabSiguiente = proximoSabado(proximoLunes);
+        
+        for (let i = 0; i < todosDias.length; i++) {
+          if (todosDias[i].fecha <= proximoSabSiguiente) {
+            indicesAMostrar.push(i);
+          } else {
+            break;
+          }
+        }
+      } else {
+        // DESPUÉS 8am: Mostrar Sábado + próxima semana (L-S)
+        const proximoSab = proximoSabado(ahora);
+        const proximoLunes = new Date(proximoSab);
+        proximoLunes.setDate(proximoLunes.getDate() + 1);
+        const proximoSabSiguiente = proximoSabado(proximoLunes);
+        
+        for (let i = 0; i < todosDias.length; i++) {
+          if (todosDias[i].fecha > ahora && todosDias[i].fecha <= proximoSabSiguiente) {
+            indicesAMostrar.push(i);
+          }
+        }
+      }
+    } else if (diaSemanaHoy === 6 || diaSemanaHoy === 0) {
+      // SÁBADO o DOMINGO: Solo próxima semana (L-S)
+      const proximoLunes = new Date(ahora);
+      // Encontrar el próximo lunes
+      while (proximoLunes.getDay() !== 1) {
+        proximoLunes.setDate(proximoLunes.getDate() + 1);
+      }
+      const proximoSab = proximoSabado(proximoLunes);
+      
+      for (let i = 0; i < todosDias.length; i++) {
+        if (todosDias[i].fecha >= proximoLunes && todosDias[i].fecha <= proximoSab) {
+          indicesAMostrar.push(i);
+        }
+      }
+    }
 
-      fecha.setDate(fecha.getDate() + 1);
+    // Generar array final con formato
+    for (const idx of indicesAMostrar) {
+      const dia = todosDias[idx];
+      const fechaISO = dia.fecha.toISOString().split('T')[0];
+      const nombreDia = dia.fecha.toLocaleDateString('es-PE', { weekday: 'long' })
+        .replace(/^\w/, c => c.toUpperCase());
+      const fechaTexto = dia.fecha.toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })
+        .replace(/^\w/, c => c.toUpperCase());
+      
+      const esHoy = dia.offset === 0;
+      const bloqueado = esHoy && !esAntesDe8am && (diaSemanaHoy >= 1 && diaSemanaHoy <= 4);
+      const textoBloqueado = bloqueado ? 'Plazo cerrado' : '';
+      
+      diasDisponibles.push({
+        id: fechaISO,
+        nombre: nombreDia,
+        fecha: fechaTexto,
+        fechaISO: fechaISO,
+        bloqueado: bloqueado,
+        textoBloqueado: textoBloqueado
+      });
     }
 
     return diasDisponibles;
