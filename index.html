@@ -407,18 +407,29 @@
   // ============================================================
   async function cargarMenuDesdeSheets() {
     try {
+      console.log('📥 Cargando menú desde Apps Script...');
       const resp = await fetch(`${SCRIPT_URL}?action=getMenu`);
       const data = await resp.json();
+      
+      console.log('📊 Respuesta del servidor:', JSON.stringify(data, null, 2));
+      
       if (data.semana1 && data.semana2) {
         menuData = data;
-        console.log('✅ Menú cargado:', JSON.stringify(menuData));
+        console.log('✅ Menú cargado correctamente');
+        console.log('Semana 1 menu:', menuData.semana1.menu);
+        console.log('Semana 2 menu:', menuData.semana2.menu);
+        generarDias();
+      } else if (data.error) {
+        console.error('❌ Error en Apps Script:', data.error);
+        menuData = null;
         generarDias();
       } else {
         console.log('⚠️ Estructura de menú incorrecta');
+        menuData = null;
         generarDias();
       }
     } catch (err) {
-      console.log('⚠️ Error cargando menú:', err);
+      console.error('❌ Error cargando menú:', err);
       menuData = null;
       generarDias();
     }
@@ -433,13 +444,14 @@
   function obtenerDiasDisponibles() {
     const ahora = new Date();
     const horaActual = ahora.getHours();
+    const minutoActual = ahora.getMinutes();
     
     // Actualizar barra de fecha
     document.getElementById('fechaHoy').textContent = `📅 ${formatearFecha(ahora)}`;
 
     const diasDisponibles = [];
     const diaSemanaHoy = ahora.getDay(); // 0=dom, 1=lun, 2=mar, ... 6=sab
-    const esAntesDe8am = horaActual < 8;
+    const esAntesDe830am = horaActual < 8 || (horaActual === 8 && minutoActual < 30);
     
     // Función auxiliar: calcular próximo sábado desde fecha
     function proximoSabado(fecha) {
@@ -488,8 +500,8 @@
       }
     } else if (diaSemanaHoy === 5) {
       // VIERNES
-      if (esAntesDe8am) {
-        // ANTES 8am: Mostrar Viernes + Sábado + próxima semana (L-S)
+      if (esAntesDe830am) {
+        // ANTES 8:30am: Mostrar Viernes + Sábado + próxima semana (L-S)
         const proximoSab = proximoSabado(ahora);
         const proximoLunes = new Date(proximoSab);
         proximoLunes.setDate(proximoLunes.getDate() + 1); // Lunes siguiente al sábado
@@ -503,7 +515,7 @@
           }
         }
       } else {
-        // DESPUÉS 8am: Mostrar Sábado + próxima semana (L-S)
+        // DESPUÉS 8:30am: Mostrar Sábado + próxima semana (L-S)
         const proximoSab = proximoSabado(ahora);
         const proximoLunes = new Date(proximoSab);
         proximoLunes.setDate(proximoLunes.getDate() + 1);
@@ -541,7 +553,7 @@
         .replace(/^\w/, c => c.toUpperCase());
       
       const esHoy = dia.offset === 0;
-      const bloqueado = esHoy && !esAntesDe8am && (diaSemanaHoy >= 1 && diaSemanaHoy <= 4);
+      const bloqueado = esHoy && !esAntesDe830am && (diaSemanaHoy >= 1 && diaSemanaHoy <= 4);
       const textoBloqueado = bloqueado ? 'Plazo cerrado' : '';
       
       diasDisponibles.push({
