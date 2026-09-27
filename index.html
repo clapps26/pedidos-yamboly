@@ -534,6 +534,7 @@
       while (proximoLunes.getDay() !== 1) {
         proximoLunes.setDate(proximoLunes.getDate() + 1);
       }
+      proximoLunes.setHours(0, 0, 0, 0); // ← IMPORTANTE: igualar hora a 00:00:00
       const proximoSab = proximoSabado(proximoLunes);
       
       for (let i = 0; i < todosDias.length; i++) {
